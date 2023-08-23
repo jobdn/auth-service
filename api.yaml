@@ -1,0 +1,123 @@
+openapi: 3.0.0
+info:
+  title: Микросервис аутентификации"
+  description: API микросервиса аутентификации
+  version: 0.0.1
+
+paths:
+  /api/auth-service/login:
+    post:
+      tags:
+        - security
+      operationId: login
+      summary: Метод для аутентификации пользователя в системе
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/loginPasswordRequest"
+      responses:
+        200:
+          description: Аутентификация пройдена успешно
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/loginResponse"
+        400:
+          description: Логин/пароль некорректны
+        500:
+          description: Внутренняя ошибка сервера
+
+  /api/auth-service/refreshTokens:
+    post:
+      tags:
+        - security
+      operationId: refreshTokens
+      summary: Обновление токенов
+      responses:
+        200:
+          description: Аутентификация пройдена успешно
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/loginResponse"
+        400:
+          description: Refresh токен некорректен
+        500:
+          description: Внутренняя ошибка сервера
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Авторизационный токен
+
+  schemas:
+    loginPasswordRequest:
+      type: object
+      required:
+        - login
+        - password
+      properties:
+        login:
+          type: string
+          description: Логин для входа в систему
+        password:
+          type: string
+          description: Пароль для входа в систему
+
+    refreshTokenRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          description: Логин для входа в систему
+
+    loginResponse:
+      type: object
+      required:
+        - tokens
+        - userInfo
+        - authorities
+      properties:
+        tokens:
+          $ref: "#/components/schemas/ssoTokensResponse"
+        userInfo:
+          $ref: "#/components/schemas/userInfo"
+        authorities:
+          type: array
+          items:
+            type: string
+          description: список ролей
+
+    ssoTokensResponse:
+      type: object
+      description: Токены
+      required:
+        - accessToken
+      properties:
+        accessToken:
+          type: string
+          description: accessToken
+
+    userInfo:
+      type: object
+      description: Информация по пользователю
+      required:
+        - name
+        - surname
+        - id
+      properties:
+        name:
+          type: string
+          description: имя пользователя
+        surname:
+          type: string
+          description: фамилия пользователя
+        id:
+          type: string
+          description: id пользователя
